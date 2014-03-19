@@ -1,0 +1,125 @@
+#!/bin/sh
+
+
+# Global variables
+
+fflag=
+iflag=
+vflag=
+rflag=
+Rflag=
+arguments=
+
+
+
+
+# Function to check and create deleted directory
+function check_directory(){
+        if [ ! -d $HOME/deleted ]; then
+          mkdir $HOME/deleted
+        fi
+}
+
+
+# Function that prints error message to std::out
+function usage(){
+        echo "usage: $0 [-v -r -i -R] [-f filename] [file ...]"
+}
+
+
+
+# Function to remove with b option captured at command line
+function delete_with_fOPT(){
+        if [ "$fflag" = "1" ]; then
+                mv $arguments $HOME/deleted
+        fi
+}
+
+# Function to remove with f option captured at command line
+function delete_with_iOPT(){
+
+        if [ "$iflag" = "1" ]; then
+                 mv $arguments $HOME/deleted >/dev/null
+        fi
+}
+
+
+# Function to remove with i option captured at command line
+function delete_with_vOPT(){
+        if [ "$vflag" = "1" ]; then
+                mv -v $arguments $HOME/deleted > /dev/null
+        fi
+}
+
+
+# Function to remove with s option captured at command line
+function delete_with_rOPT(){
+        if [ "$rflag" = "1" ]; then
+                mv $arguments $HOME/deleted
+        fi
+}
+
+
+# Function to remove with u option captured at command line
+function delete_with_ROPT(){
+        if [ "$Rflag" = "1" ]; then
+                mv $arguments $HOME/deleted
+        fi
+}
+
+
+
+
+#  Main
+ check_directory
+
+        while getopts "fivrR" opt > /dev/null
+           do
+                case $opt in
+                        f)   fflag=1;;
+                        i)   iflag=1;;
+                        v)   vflag=1;;
+                        r|R) rflag=1;;
+                        \?)
+                          echo >&2 \
+                                "usage: $0 [-v -r -i -R] [-f filename] [file ..]"
+                          exit 1;;
+                esac
+        done
+        shift `expr $OPTIND - 1`
+
+        arguments=$*
+
+        if [ "$fflag" = "1" ]; then
+                 delete_with_fOPT
+        fi
+
+
+        if [ "$iflag" = "1" ]; then
+
+                echo -n "Are you sure you want to delete $arguments [Y/N]?"
+                read answer
+                  if [ $answer = "N" -o $answer = "n" ]; then
+                        exit 0
+                  elif
+                   [ $answer = "Y" -o $answer = "y" ]; then
+                         delete_with_iOPT
+               fi
+
+        fi
+
+
+
+        if [ "$vflag" = "1" ]; then
+  echo -n "$arguments -> $HOME/deleted"
+                delete_with_vOPT
+        fi
+
+        if [ "$rflag" = "1" ]; then
+                delete_with_rOPT
+        fi
+
+        if [ "$Rflag" = "1" ]; then
+                delete_with_ROPT
+        fi
+                                                                                    
